@@ -1,5 +1,4 @@
 import streamlit as st
-from home import teams
 
 # -----------------------------
 # CSS
