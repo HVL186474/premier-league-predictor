@@ -1,4 +1,5 @@
 import streamlit as st
+from home import teams
 
 st.set_page_config(
     page_title="Manchester City | Premier League Predictor",
@@ -440,29 +441,9 @@ home win, draw or away win.
 </div>
 """, unsafe_allow_html=True)
 
-
-opponents = [
-    "Arsenal",
-    "Aston Villa",
-    "Brighton",
-    "Brentford",
-    "Chelsea",
-    "Crystal Palace",
-    "Everton",
-    "Fulham",
-    "Leeds United",
-    "Liverpool",
-    "Manchester United",
-    "Newcastle United",
-    "Nottingham Forest",
-    "Tottenham",
-    "West Ham",
-    "Wolves"
-]
-
 opponent = st.selectbox(
     "Choose opponent",
-    opponents
+     [team[0] for team in teams]
 )
 
 home_away = st.radio(

@@ -1,4 +1,5 @@
 import pandas as pd
+import os, sys
 from urllib.request import urlretrieve
 
 seasons = ["1617", "1718", "1819", "1920", "2021", "2122", "2223", "2324", "2425", "2526", "2627"]
@@ -39,3 +40,10 @@ if __name__ == "__main__":
     download_seasons()
     all_matches = load_matches()
     print(len(all_matches))
+
+
+   #Linje 1
+    os.chdir("..")
+    sys.path.append(".")
+
+    matches = load_matches()
