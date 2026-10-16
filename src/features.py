@@ -80,3 +80,52 @@ def test_add_form_does_not_change_the_input():
       matches = make_matches()
       add_form(matches)
       assert "HomeForm" not in matches.columns
+
+def add_elo(matches, k=ELO_K):
+    """Add HomeElo, AwayElo and EloDiff: both teams' Elo ratings before the match."""
+    rating = {}
+    previous_teams = None
+    home_elo = {}
+    away_elo = {}
+
+    matches = matches.sort_values("Date")
+
+    home_elo = []
+    away_elo = []
+    ratings = {}
+    previous_teams = None
+
+    for season in matches["Season"].unique():
+        season_matches = matches[matches["Season"] == season]
+        teams = set(season_matches["HomeTeam"]) | set(season_matches["AwayTeam"])
+
+        if previous_teams is None:
+            for team in teams:
+                ratings[team] = 1500
+        else:
+            relegated = previous_teams - teams
+            promoted = teams - previous_teams
+            start = sum(ratings[t] for t in relegated) / len(relegated)
+            print(season, "relegated:", sorted(relegated), "promoted:", sorted(promoted), "start:", start)            
+            for team in promoted:
+                ratings[team] = start
+
+        for _, row in season_matches.iterrows():
+            home = row["HomeTeam"]
+            away = row["AwayTeam"]
+            h = ratings[home]
+            a = ratings[away]
+            
+            home_elo.append(h)   
+            away_elo.append(a)
+
+            result = {"H": 1, "D": 0.5, "A": 0}[row["FTR"]]
+            change = rating_change(h, a, result)
+            ratings[home] = h + change
+            ratings[away] = a - change
+
+        previous_teams = teams
+    
+    matches["HomeElo"] = home_elo    
+    matches["AwayElo"] = away_elo
+    matches["EloDiff"] = matches["HomeElo"] - matches["AwayElo"]
