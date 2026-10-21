@@ -20,6 +20,7 @@ Show those probabilities in a Streamlit app for any fixture between two teams in
 | Seasons | 2016/17 to 2026/27 (11 seasons, ~3,850 matches) |
 | Loader | `src/data_loader.py`: `download_seasons()` then `load_matches()` |
 | Target column | `FTR` (full-time result: `H` / `D` / `A`) |
+| Dates | Text, day first. 2016/17 uses 2-digit years (`13/08/16`), later seasons 4-digit (`11/08/2017`). `preprocessing.py` parses them with `pd.to_datetime(..., dayfirst=True, format="mixed")` so every season has real dates (decision D6) |
 | Current season | 2026/27 is still being played. Re-download it to get new results |
 
 ### Allowed and forbidden inputs
@@ -46,6 +47,15 @@ Every rolling or rating feature must use `shift(1)`, or be computed from the sta
 
 Splits are by season, never random, so the model never trains on matches after the ones it is tested on.
 
+### Scoring
+
+Every model is scored with the same function, `score(model, X, y)` in `src/evaluation.py`:
+
+- It takes a fitted sklearn model, the feature columns `X` and the true results `y` (`FTR`).
+- It returns a dict: `{"log_loss": ..., "accuracy": ...}`.
+- Log loss uses `model.predict_proba(X)` with `labels=model.classes_`, so the class order is always right.
+- **Check**: logistic regression on `EloDiff` only, trained on the training seasons and scored on 2025/26, must give **1.042** (re-measured 2026-10-21 with `src/split.py`; the 1.043 in the table below came from the notebook). If it doesn't, the function is wrong.
+
 ### Baselines to beat (2025/26, measured 2026-10-16)
 
 | Model | Accuracy | Log loss |
@@ -71,7 +81,7 @@ Missing form (a team's first match in the data) is filled with **0.79** (decisio
 
 1. Multinomial logistic regression: the main, explainable model.
 2. A gradient-boosted tree model (e.g. `HistGradientBoostingClassifier`) for comparison.
-3. Pick the one with the lower validation log loss. If they are close, prefer logistic regression.
+3. Pick the one with the lower validation log loss. If the gap is under **0.005**, it counts as a tie and logistic regression wins (decision D5).
 
 Draws are hard to predict, and no model is expected to *pick* draws often. The report should discuss this.
 
@@ -104,6 +114,19 @@ The notebook stays for exploration and figures, and imports from `src/` instead 
 
 - Split requirements: `requirements.txt` (app only) and `requirements-dev.txt` (jupyter, pytest).
 
+### Model handoff (`models/`)
+
+`train.py` writes these files and `prediction.py` reads them. Agreed on 2026-10-21, so the app can be built before the final model exists.
+
+| File | Written by | Holds |
+|---|---|---|
+| `models/model.joblib` | `train.py` (T3.6) | The fitted sklearn model, with `predict_proba` |
+| `models/team_state.csv` | `train.py` (T3.6) | One row per current-season team, columns `Team,Elo,Form`. `Team` uses the **data** names (e.g. `Man City`) |
+| `models/features.json` | `train.py` (T3.6) | The list of feature columns, in the order the model expects |
+
+- `prediction.py` builds one row with the columns from `features.json` (e.g. `HomeElo` from the home team's `Elo`) and returns the probabilities as `{"H": ..., "D": ..., "A": ...}`, using `model.classes_` for the order.
+- The app maps its display names to data names (T4.2) before looking up `team_state.csv`.
+
 ## 9. Security and data
 
 - Public sports data only, with no personal data, so PDPA/GDPR does not apply.
@@ -119,6 +142,8 @@ The notebook stays for exploration and figures, and imports from `src/` instead 
 | D2 | Deadline for the assignment and report? | **Friday 30 October 2026** |
 | D3 | How to fill missing form? | **0.79**, as in the notebook |
 | D4 | How to handle 2016/17, when ratings and form have no history? | **Warm-up only**: used for Elo and form, left out of training |
+| D5 | When are two models' validation log losses "close"? | **A gap under 0.005 is a tie**, and logistic regression wins a tie (agreed 2026-10-21, before seeing any results) |
+| D6 | How to parse the mixed date formats? | **`dayfirst=True, format="mixed"`** in `preprocessing.py`, for every season (2026-10-21) |
 
 ## 11. Out of scope
 
