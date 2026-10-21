@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from src.features import add_form, expected_score, rating_change
+from src.features import add_elo, add_form, expected_score, rating_change
 
 def test_expected_score():
     assert expected_score(1000, 1000) == 0.5
@@ -62,3 +62,79 @@ def test_add_form_does_not_change_the_input():
       matches = make_matches()
       add_form(matches)
       assert "HomeForm" not in matches.columns
+
+def make_elo_matches(second_season_away="E"):
+      # Season 1: A, B, C, D play two rounds. Season 2: D is relegated and E is promoted
+      return pd.DataFrame({
+          "Season": ["1617"] * 4 + ["1718"] * 2,
+          "Date": pd.to_datetime(["2020-01-01", "2020-01-01", "2020-01-02", "2020-01-02", "2021-01-01", "2021-01-01"]),
+          "HomeTeam": ["A", "C", "A", "B", "A", "B"],
+          "AwayTeam": ["B", "D", "C", "D", second_season_away, "C"],
+          "FTR": ["H", "D", "A", "H", "D", "H"],
+      })  
+
+
+def test_elo_known_values():
+      result = add_elo(make_elo_matches())
+      # First match: both start at 1500. A wins, so A gains 20 * 0.5 = 10 and B loses 10
+      assert result.loc[0, ["HomeElo", "AwayElo"]].tolist() == [1500, 1500]
+      assert result.loc[2, ["HomeElo", "AwayElo"]].tolist() == [1510, 1500]
+      assert result.loc[3, ["HomeElo", "AwayElo"]].tolist() == [1490, 1500]
+      assert result.loc[2, "EloDiff"] == 10
+ 
+     
+def test_elo_ratings_sum_is_conserved():
+      result = add_elo(make_elo_matches())
+      # Round 2 (rows 2 and 3) has every team once, so its ratings must add up to 4 * 1500
+      round_two = result.loc[[2, 3], ["HomeElo", "AwayElo"]].to_numpy().sum()
+      assert round_two == pytest.approx(4 * 1500)
+
+def test_promoted_team_starts_at_relegated_average():
+      result = add_elo(make_elo_matches())
+      # D is the only relegated team, so E starts at D's rating after D's last match (row 3)
+      d_before = result.loc[3, "AwayElo"]
+      b_before = result.loc[3, "HomeElo"]
+      d_after = d_before - 20 * (1 - expected_score(b_before, d_before))
+      assert result.loc[4, "AwayElo"] == pytest.approx(d_after)
+      
+      
+def test_elo_season_without_promotion_carries_ratings_over():
+      result = add_elo(make_elo_matches(second_season_away="D"))
+      # Same four teams in season 2, so D keeps its rating and nothing crashes
+      d_before = result.loc[3, "AwayElo"]
+      b_before = result.loc[3, "HomeElo"]
+      d_after = d_before - 20 * (1 - expected_score(b_before, d_before))
+      assert result.loc[4, "AwayElo"] == pytest.approx(d_after)
+     
+     
+def test_elo_does_not_use_the_match_own_result():
+      matches = make_elo_matches()
+      changed = matches.copy()
+      changed.loc[2, "FTR"] = "H"
+     
+      before = add_elo(matches)
+      after = add_elo(changed)
+     
+      assert before.loc[:3, ["HomeElo", "AwayElo"]].equals(after.loc[:3, ["HomeElo", "AwayElo"]])
+      assert before.loc[4, "HomeElo"] != after.loc[4, "HomeElo"]
+
+def test_elo_uses_k():
+      matches = make_elo_matches()
+      assert add_elo(matches, k=40).loc[2, "HomeElo"] == 1520
+     
+      
+def test_elo_rows_stay_matched_when_input_is_shuffled():
+      matches = make_elo_matches()
+      shuffled = matches.sample(frac=1, random_state=0)
+     
+      expected = add_elo(matches)
+      result = add_elo(shuffled)
+     
+      assert result.index.tolist() == shuffled.index.tolist()
+      assert result.loc[matches.index, "HomeElo"].equals(expected["HomeElo"])
+     
+     
+def test_add_elo_does_not_change_the_input():
+      matches = make_elo_matches()
+      add_elo(matches)
+      assert "HomeElo" not in matches.columns
