@@ -82,6 +82,7 @@ Draws are hard to predict, and no model is expected to *pick* draws often. The r
 | `src/data_loader.py` | Download and load raw seasons (paths relative to the project root) |
 | `src/preprocessing.py` | Parse dates, sort, keep needed columns, normalise team names |
 | `src/features.py` | Form and Elo features, without look-ahead |
+| `src/split.py` | Train/validation/test split by season (§3), run after the features are computed |
 | `src/model.py` | Model definitions |
 | `src/train.py` | Train on a split and save the model to `models/` |
 | `src/evaluation.py` | Metrics, baselines and the comparison table |
