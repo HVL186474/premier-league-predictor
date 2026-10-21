@@ -44,88 +44,48 @@ def add_form(matches, window=FORM_WINDOW):
 
     return matches
 
-def make_matches():
-      return pd.DataFrame({
-          "Season": ["1617"] * 4,
-          "Date": pd.to_datetime(["2020-01-01", "2020-01-02", "2020-01-03", "2020-01-04"]),
-          "HomeTeam": ["A", "B", "C", "A"],
-          "AwayTeam": ["B", "C", "A", "B"],
-          "FTR": ["H", "D", "A", "D"],
-      })  
-     
-     
-def test_form_known_values():
-      result = add_form(make_matches())
-      assert list(result["HomeForm"]) == pytest.approx([0.79, 0.0, 1.0, 3.0])
-      assert list(result["AwayForm"]) == pytest.approx([0.79, 0.79, 3.0, 0.5])
-     
-def test_form_does_not_use_the_match_own_result():
-      matches = make_matches()
-      changed = matches.copy()
-      changed.loc[2, "FTR"] = "H"
-     
-      before = add_form(matches)
-      after = add_form(changed)
-     
-      assert before.loc[:2, ["HomeForm", "AwayForm"]].equals(after.loc[:2, ["HomeForm", "AwayForm"]])
-      assert before.loc[3, "HomeForm"] != after.loc[3, "HomeForm"]
-
-def test_form_window_limits_how_many_matches_count():
-      result = add_form(make_matches(), window=1)
-      assert result.loc[3, "HomeForm"] == 3.0
-      assert result.loc[3, "AwayForm"] == 1.0
-
- 
-def test_add_form_does_not_change_the_input():
-      matches = make_matches()
-      add_form(matches)
-      assert "HomeForm" not in matches.columns
-
 def add_elo(matches, k=ELO_K):
-    """Add HomeElo, AwayElo and EloDiff: both teams' Elo ratings before the match."""
-    rating = {}
-    previous_teams = None
-    home_elo = {}
-    away_elo = {}
+      """Add HomeElo, AwayElo and EloDiff: both teams' Elo ratings before the match."""
+      ratings = {}
+      previous_teams = None
+      home_elo = {}
+      away_elo = {}
+      
+      ordered = matches.sort_values("Date", kind="stable")
+      
+      for season in ordered["Season"].unique():
+          season_matches = ordered[ordered["Season"] == season]
+          teams = set(season_matches["HomeTeam"]) | set(season_matches["AwayTeam"])
+          
+          if previous_teams is None:
+              for team in teams:
+                  ratings[team] = ELO_START
+          else:   
+              relegated = previous_teams - teams
+              promoted = teams - previous_teams
+              if promoted:
+                  start = sum(ratings[team] for team in relegated) / len(relegated)
+                  for team in promoted:
+                      ratings[team] = start
 
-    matches = matches.sort_values("Date")
+          for idx, row in season_matches.iterrows():
+                home = row["HomeTeam"]
+                away = row["AwayTeam"]
+                h = ratings[home]
+                a = ratings[away]
 
-    home_elo = []
-    away_elo = []
-    ratings = {}
-    previous_teams = None
-
-    for season in matches["Season"].unique():
-        season_matches = matches[matches["Season"] == season]
-        teams = set(season_matches["HomeTeam"]) | set(season_matches["AwayTeam"])
-
-        if previous_teams is None:
-            for team in teams:
-                ratings[team] = 1500
-        else:
-            relegated = previous_teams - teams
-            promoted = teams - previous_teams
-            start = sum(ratings[t] for t in relegated) / len(relegated)
-            print(season, "relegated:", sorted(relegated), "promoted:", sorted(promoted), "start:", start)            
-            for team in promoted:
-                ratings[team] = start
-
-        for _, row in season_matches.iterrows():
-            home = row["HomeTeam"]
-            away = row["AwayTeam"]
-            h = ratings[home]
-            a = ratings[away]
+                home_elo[idx] = h
+                away_elo[idx] = a
             
-            home_elo.append(h)   
-            away_elo.append(a)
-
-            result = {"H": 1, "D": 0.5, "A": 0}[row["FTR"]]
-            change = rating_change(h, a, result)
-            ratings[home] = h + change
-            ratings[away] = a - change
-
-        previous_teams = teams
+                result = {"H": 1, "D": 0.5, "A": 0}[row["FTR"]]
+                change = rating_change(h, a, result, k)
+                ratings[home] = h + change
+                ratings[away] = a - change
     
-    matches["HomeElo"] = home_elo    
-    matches["AwayElo"] = away_elo
-    matches["EloDiff"] = matches["HomeElo"] - matches["AwayElo"]
+          previous_teams = teams
+
+      result = matches.copy()
+      result["HomeElo"] = pd.Series(home_elo)
+      result["AwayElo"] = pd.Series(away_elo)
+      result["EloDiff"] = result["HomeElo"] - result["AwayElo"]
+      return result
