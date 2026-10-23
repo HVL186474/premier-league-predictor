@@ -4,6 +4,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, log_loss
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import HistGradientBoostingClassifier
  
 from src.data_loader import load_matches
 from src.features import add_elo, add_form
@@ -25,6 +26,13 @@ def build_matches():
 def logistic_regression():
       # Skalerer først, så Elo (~1500) og form (0-3) får like stor sjanse i modellen
       return make_pipeline(StandardScaler(), LogisticRegression())
+
+def gradient_boosting():
+      return HistGradientBoostingClassifier(
+            max_depth = 2, 
+            learning_rate = 0.05, 
+            max_iter = 100, 
+            random_state = 0)
  
  
 def class_frequency_probabilities(train, n_matches):
@@ -56,10 +64,11 @@ def compare_on_validation(matches):
       rows = [results_row("Class frequencies", y, class_frequency_probabilities(train, len(validation)))]
  
       for name, features in FEATURE_SETS.items():
-          model = logistic_regression().fit(train[features], train["FTR"])
-          assert list(model.classes_) == CLASSES
-          rows.append(results_row(f"LogReg: {name}", y, model.predict_proba(validation[features])))
-          
+          for model_name, make_model in [("LogReg", logistic_regression), ("Boosting", gradient_boosting)]:
+                model = make_model().fit(train[features], train["FTR"])
+                assert list(model.classes_) == CLASSES
+                rows.append(results_row(f"{model_name}: {name}", y, model.predict_proba(validation[features])))
+
       rows.append(results_row("Bet365 (benchmark)", y, bookmaker_probabilities(validation)))
      
       return pd.DataFrame(rows).sort_values("Log loss", ignore_index=True)

@@ -29,15 +29,15 @@ Work items for the [Blueprint](BLUEPRINT.md). Every code change should map to a 
 - [x] **T2.4** `features.py`: form feature, filling missing form with 0.79 (decision D3)
 - [x] **T2.5** `features.py`: Elo feature
 - [x] **T2.6** `tests/test_features.py`: no look-ahead (changing a match's result must not change its own features), correct form values on a small hand-made example, Elo ratings sum unchanged after a match
-- [ ] **T2.7** `evaluation.py`: log loss, accuracy, confusion matrix, and the baseline table from the blueprint
+- [x] **T2.7** `evaluation.py`: log loss, accuracy, confusion matrix, and the baseline table from the blueprint
 - [ ] **T2.8** Notebook imports from `src/` instead of defining the logic inline
 
 ## Phase 3: Improve the model (Wed 21 – Sat 24 Oct)
 
 - [x] **T3.1** Train/validation/test split by season, with 2016/17 as warm-up only (blueprint §3, decision D4)
 - [x] **T3.2** Logistic regression on Elo + form. Compare against baselines on validation data
-- [ ] **T3.3** Try the candidate features from blueprint §4. Keep only what lowers validation log loss
-- [ ] **T3.4** Gradient-boosted model for comparison
+- [x] **T3.3** Try the candidate features from blueprint §4. Keep only what lowers validation log loss
+- [x] **T3.4** Gradient-boosted model for comparison
 - [ ] **T3.5** Final test-set evaluation (run once) plus figures for the report
 - [ ] **T3.6** `train.py`: retrain the chosen model on all completed seasons and save it to `models/`
 

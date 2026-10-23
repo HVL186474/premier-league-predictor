@@ -77,11 +77,35 @@ Logistic regression on validation, compared with Elo only at K = 20 (0.9819):
 
 We looked at validation 15+ times to choose K, so the validation score is a little flattering. That is why the test set is kept for one final run.
 
+### Gradient boosting (T3.4, 2026-10-23)
+
+`HistGradientBoostingClassifier(max_depth=2, learning_rate=0.05, max_iter=100)`, K = 30, same split and rows. Run once with these settings, not tuned on validation.
+
+| Model | Log loss | Accuracy |
+|---|---|---|
+| Bet365 (benchmark) | 0.9708 | 54.2% |
+| Logistic regression: Elo + form | 0.9763 | 54.0% |
+| Logistic regression: Elo only | 0.9774 | 53.7% |
+| Boosting: Elo only | 0.9926 | 54.0% |
+| Boosting: Elo + form | 0.9956 | 53.4% |
+| Boosting: form only | 1.0493 | 50.0% |
+
+Boosting is 0.015 worse than logistic regression on the same features, three times the D5 tie threshold. The Elo effect is smooth, so the trees' extra flexibility only fits noise in 2,660 training matches.
+
+### Model choice (D5, 2026-10-23)
+
+- Boosting loses outright to logistic regression.
+- Logistic regression Elo + form vs Elo only: gap 0.0011, a tie under D5, so the simpler model wins.
+- **Chosen model: logistic regression on `EloDiff` only, K = 30.**
+
+### Scoring check
+
+- `score()` (T2.7, 2026-10-23): logistic regression on `EloDiff` with K = 20, trained on the training seasons and scored on 2025/26, gives 1.0417 log loss and 47.6% accuracy, matching blueprint §3.
+- Note for honesty: while setting up this check, the same model was also scored on 2025/26 at K = 30 (1.039). That number was not used for any decision; the choice above was made on validation only.
+
 ### Still to fill in
 
-- Gradient boosting (T3.4, Andreas) on the same split and features.
-- Final choice under D5, and the single test-set number (T3.5).
-- Scoring check for `score()`: logistic regression on `EloDiff` with K = 20, scored on 2025/26, gives 1.042.
+- The single test-set run of the chosen model and baselines (T3.5).
 
 ## 6. Findings to discuss
 
