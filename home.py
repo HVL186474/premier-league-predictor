@@ -78,59 +78,23 @@ st.markdown(
 
 # -----------------------------
 # Featured teams
-# Only these appear on the front page
-# -----------------------------
-
-featured_team_names = [
-    "Arsenal",
-    "Chelsea",
-    "Liverpool",
-    "Manchester City",
-    "Manchester United",
-    "Tottenham",
-]
-
-featured_teams = [
-    team for team in teams
-    if team[0] in featured_team_names
-]
-
-
-# -----------------------------
-# Team pages
+# Only these appear on the front page. The pages
+# themselves are registered in streamlit_app.py
 # -----------------------------
 
 team_pages = {
-    "Arsenal": st.Page(
-        "pages/arsenal.py",
-        title="Arsenal"
-    ),
-
-    "Chelsea": st.Page(
-        "pages/chelsea.py",
-        title="Chelsea"
-    ),
-
-    "Liverpool": st.Page(
-        "pages/liverpool.py",
-        title="Liverpool"
-    ),
-
-    "Manchester City": st.Page(
-        "pages/mancity.py",
-        title="Manchester City"
-    ),
-
-    "Manchester United": st.Page(
-        "pages/manu.py",
-        title="Manchester United"
-    ),
-
-    "Tottenham": st.Page(
-        "pages/tottenham.py",
-        title="Tottenham"
-    ),
+    "Arsenal": "pages/arsenal.py",
+    "Chelsea": "pages/chelsea.py",
+    "Liverpool": "pages/liverpool.py",
+    "Manchester City": "pages/mancity.py",
+    "Manchester United": "pages/manu.py",
+    "Tottenham": "pages/tottenham.py",
 }
+
+featured_teams = [
+    team for team in teams
+    if team[0] in team_pages
+]
 
 
 # -----------------------------
@@ -226,13 +190,7 @@ for i, (name, logo, nickname, _) in enumerate(featured_teams):
                 key=f"team_button_{name}",
                 use_container_width=True
             ):
-                if name in team_pages:
-                    st.switch_page(team_pages[name])
-                else:
-                    st.info(
-                        f"The {name} team page has not "
-                        "been created yet."
-                    )
+                st.switch_page(team_pages[name])
 
     # Start a new row after every three teams
     if i % 3 == 2:

@@ -50,13 +50,13 @@ Work items for the [Blueprint](BLUEPRINT.md). Every code change should map to a 
 
 ## Phase 5: Deploy (Tue 27 Oct)
 
-- [ ] **T5.1** Commit the model files and make sure the app runs with an empty `data/raw/`
+- [x] **T5.1** Commit the model files and make sure the app runs with an empty `data/raw/`
 - [ ] **T5.2** Deploy to Streamlit Community Cloud and smoke-test it
 
 ## Phase 6: Clean up (optional, only if time allows)
 
 - [ ] ~~**T6.1** Replace the six team pages with one shared template plus per-team content~~ Dropped (decision D8)
-- [ ] **T6.2** Remove the duplicate `team_pages` setup in `home.py`
+- [x] **T6.2** Remove the duplicate `team_pages` setup in `home.py`
 - [ ] **T6.3** Replace deprecated `use_container_width` arguments
 
 ## Report (write alongside phases 3–5, final draft by Wed 28 Oct)
