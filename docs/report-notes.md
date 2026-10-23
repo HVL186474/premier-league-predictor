@@ -103,9 +103,25 @@ Boosting is 0.015 worse than logistic regression on the same features, three tim
 - `score()` (T2.7, 2026-10-23): logistic regression on `EloDiff` with K = 20, trained on the training seasons and scored on 2025/26, gives 1.0417 log loss and 47.6% accuracy, matching blueprint §3.
 - Note for honesty: while setting up this check, the same model was also scored on 2025/26 at K = 30 (1.039). That number was not used for any decision; the choice above was made on validation only.
 
-### Still to fill in
+### Test season 2025/26 (T3.5, 2026-10-23, `src/final_evaluation.py`)
 
-- The single test-set run of the chosen model and baselines (T3.5).
+Every model trained on train + validation (2017/18 to 2024/25), the seasons played before the test season. So these numbers differ slightly from the blueprint §3 table, which trained on train only.
+
+| Model | Log loss | Accuracy |
+|---|---|---|
+| Class frequencies | 1.0850 | 42.6% |
+| Logistic regression: Elo only, K = 20 (baseline) | 1.0405 | 47.4% |
+| **Logistic regression: Elo only, K = 30 (chosen)** | **1.0385** | **48.7%** |
+| Bet365 (benchmark) | 1.0185 | 49.0% |
+
+- Success criterion (blueprint §3) met: the chosen model beats the Elo-only baseline on validation and on test.
+- But the K = 30 gain shrank from 0.0046 (validation) to 0.0020 (test). Expected, since K was picked after looking at validation 15+ times.
+- Closes 70% of the gap from knowing nothing to the bookmaker on test (94% on validation). Gap to Bet365: 0.020 on test vs 0.007 on validation.
+- Draws were 27.4% of test matches (104 of 380). Neither the model nor Bet365 predicts a single draw.
+- Figures: `figures/confusion_matrix.png`, `figures/calibration.png`.
+  - Calibration: home and away follow the diagonal well up to about 50%. At the top the model is a bit overconfident (says 73% home win, happened 62%).
+  - Draw probabilities stay between 17% and 26%, and within that band they are roughly right.
+- Process: the script was not committed before running. It ran twice: the first run crashed on a missing import after printing the table; the model is deterministic, so the numbers were the same.
 
 ## 6. Findings to discuss
 
