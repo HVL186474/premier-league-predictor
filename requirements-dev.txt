@@ -1,0 +1,3 @@
+-r requirements.txt
+pytest
+jupyter==1.1.1
