@@ -23,7 +23,7 @@ Work items for the [Blueprint](BLUEPRINT.md). Every code change should map to a 
 
 ## Phase 2: Move the notebook logic into `src/` (Sat 17 – Tue 20 Oct)
 
-- [ ] **T2.1** Add `requirements-dev.txt` with pytest and jupyter, and remove jupyter from `requirements.txt`
+- [x] **T2.1** Add `requirements-dev.txt` with pytest and jupyter, and remove jupyter from `requirements.txt`
 - [ ] **T2.2** `data_loader.py`: use paths relative to the project root, and drop the `os.chdir("..")` from the notebook
 - [ ] **T2.3** `preprocessing.py`: parse dates, sort by date, keep only needed columns
 - [x] **T2.4** `features.py`: form feature, filling missing form with 0.79 (decision D3)
