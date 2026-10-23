@@ -106,7 +106,7 @@ The notebook stays for exploration and figures, and imports from `src/` instead 
 
 - Home page predictor: pick any two **current-season** teams and see H/D/A probabilities.
 - Team lists come from the data, not hard-coded. App display names map to data names (e.g. `Man City` → "Manchester City").
-- Team pages share one template with per-team content.
+- Team pages only for the six featured teams that already have one (decision D8). The other 14 current teams have no page but can be picked in every predictor.
 - Deployed on Streamlit Community Cloud.
 
 ## 8. Deployment
@@ -122,7 +122,7 @@ The notebook stays for exploration and figures, and imports from `src/` instead 
 | File | Written by | Holds |
 |---|---|---|
 | `models/model.joblib` | `train.py` (T3.6) | The fitted sklearn model, with `predict_proba` |
-| `models/team_state.csv` | `train.py` (T3.6) | One row per current-season team, columns `Team,Elo,Form`. `Team` uses the **data** names (e.g. `Man City`) |
+| `models/team_state.csv` | `train.py` (T3.6) | One row per current-season team, columns `Team,Elo` (decision D7). `Team` uses the **data** names (e.g. `Man City`) |
 | `models/features.json` | `train.py` (T3.6) | The list of feature columns, in the order the model expects |
 
 - `prediction.py` builds one row with the columns from `features.json` (e.g. `HomeElo` from the home team's `Elo`) and returns the probabilities as `{"H": ..., "D": ..., "A": ...}`, using `model.classes_` for the order.
@@ -145,6 +145,8 @@ The notebook stays for exploration and figures, and imports from `src/` instead 
 | D4 | How to handle 2016/17, when ratings and form have no history? | **Warm-up only**: used for Elo and form, left out of training |
 | D5 | When are two models' validation log losses "close"? | **A gap under 0.005 is a tie**, and logistic regression wins a tie (agreed 2026-10-21, before seeing any results) |
 | D6 | How to parse the mixed date formats? | **`dayfirst=True, format="mixed"`** in `preprocessing.py`, for every season (2026-10-21) |
+| D7 | What does `models/team_state.csv` hold? | **`Team,Elo` only**. The chosen model uses `EloDiff` alone, so form is not stored (2026-10-23) |
+| D8 | How much frontend do we build? | **Keep the six existing team pages, add no new ones.** All 20 current teams can still be predicted from the home page and team-page dropdowns. The assignment is the ML, so frontend work is kept to the minimum (2026-10-23) |
 
 ## 11. Out of scope
 
