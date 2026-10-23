@@ -1,5 +1,7 @@
 
 import streamlit as st
+from src.teams import teams
+
 
 # -----------------------------
 # CSS
@@ -71,35 +73,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
-# -----------------------------
-# All teams
-# Used in dropdown menus
-# -----------------------------
-
-teams = [
-    ("Arsenal", "images/arsenal.png", "The Gunners"),
-    ("Aston Villa", "images/astonvilla.png", "The Villans"),
-    ("Bournemouth", "images/bournemouth.png", "The Cherries"),
-    ("Brentford", "images/brentford.png", "The Bees"),
-    ("Brighton", "images/brighton.png", "The Seagulls"),
-    ("Chelsea", "images/chelsea.png", "The Blues"),
-    ("Coventry City", "images/coventry.png", "The Sky Blues"),
-    ("Crystal Palace", "images/crystalpalace.png", "The Eagles"),
-    ("Everton", "images/everton.png", "The Toffees"),
-    ("Fulham", "images/fulham.png", "The Cottagers"),
-    ("Hull City", "images/hull.png", "The Tigers"),
-    ("Ipswich Town", "images/ipswich.png", "The Tractor Boys"),
-    ("Leeds United", "images/leeds.png", "The Whites"),
-    ("Liverpool", "images/liverpool.png", "The Reds"),
-    ("Manchester City", "images/mancity.png", "The Citizens"),
-    ("Manchester United", "images/manu.png", "The Red Devils"),
-    ("Newcastle United", "images/newcastle.png", "The Magpies"),
-    ("Nottingham Forest", "images/nottingham.png", "The Tricky Trees"),
-    ("Tottenham", "images/spurs.png", "Spurs")
-]
-
 
 # -----------------------------
 # Featured teams
@@ -181,7 +154,7 @@ st.divider()
 
 st.subheader("Predict a match")
 
-team_names = [name for name, logo, nickname in teams]
+team_names = [name for name, logo, nickname, _ in teams]
 
 col1, col2 = st.columns(2)
 
@@ -235,7 +208,7 @@ st.subheader("Premier League Teams")
 
 columns = st.columns(3)
 
-for i, (name, logo, nickname) in enumerate(featured_teams):
+for i, (name, logo, nickname, _) in enumerate(featured_teams):
 
     with columns[i % 3]:
 

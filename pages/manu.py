@@ -1,5 +1,5 @@
 import streamlit as st
-from home import teams
+from src.teams import teams
 
 st.set_page_config(
     page_title="Manchester United | Premier League Predictor",
