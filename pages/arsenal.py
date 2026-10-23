@@ -1,5 +1,6 @@
 import streamlit as st
 from src.teams import teams
+from src.prediction_view import show_prediction
 
 st.set_page_config(
     page_title="Arsenal | Premier League Predictor",
@@ -429,23 +430,20 @@ draw or away win.
 
 opponent = st.selectbox(
     "Choose opponent",
-     [team[0] for team in teams]
+    [team[0] for team in teams if team[0] != "Arsenal"]
 )
 
 home_away = st.radio(
     "Where is the match played?",
-    [
-        "Arsenal at home",
-        "Arsenal away"
-    ],
+    ["Arsenal at home", "Arsenal away"],
     horizontal=True
 )
 
 if st.button("Predict Match"):
-    st.info(
-        f"Prediction for Arsenal vs {opponent} "
-        f"({home_away}) will appear here when the model is connected."
-    )
+    if home_away == "Arsenal at home":
+        show_prediction("Arsenal", opponent)
+    else:
+        show_prediction(opponent, "Arsenal")
 
 
 # =========================

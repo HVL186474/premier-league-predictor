@@ -1,5 +1,6 @@
 import streamlit as st
 from src.teams import teams
+from src.prediction_view import show_prediction
 
 st.set_page_config(
     page_title="Manchester United | Premier League Predictor",
@@ -423,24 +424,20 @@ home win, draw or away win.
 
 opponent = st.selectbox(
     "Choose opponent",
-     [team[0] for team in teams]
+    [team[0] for team in teams if team[0] != "Manchester United"]
 )
 
 home_away = st.radio(
     "Where is the match played?",
-    [
-        "Manchester United at home",
-        "Manchester United away"
-    ],
+    ["Manchester United at home", "Manchester United away"],
     horizontal=True
 )
 
 if st.button("Predict Match"):
-
-    st.info(
-        f"Prediction for Manchester United vs {opponent} "
-        f"({home_away}) will appear here when the model is connected."
-    )
+    if home_away == "Manchester United at home":
+        show_prediction("Manchester United", opponent)
+    else:
+        show_prediction(opponent, "Manchester United")
 
 
 # =========================
