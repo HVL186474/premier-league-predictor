@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from src.features import add_elo, add_form, expected_score, rating_change
+from src.features import add_elo, add_form, expected_score, rating_change, current_elo
 
 def test_expected_score():
     assert expected_score(1000, 1000) == 0.5
@@ -138,3 +138,14 @@ def test_add_elo_does_not_change_the_input():
       matches = make_elo_matches()
       add_elo(matches)
       assert "HomeElo" not in matches.columns
+
+def test_current_elo_is_rating_after_last_match():
+        matches = pd.DataFrame({
+            "Date": pd.to_datetime(["2020-08-01"]),
+            "Season": ["2021"],
+            "HomeTeam": ["A"],
+            "AwayTeam": ["B"],
+            "FTR": ["H"],
+        })
+        ratings = current_elo(add_elo(matches, k=20), k=20)
+        assert ratings == {"A": 1510, "B": 1490}

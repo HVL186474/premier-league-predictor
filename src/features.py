@@ -89,3 +89,13 @@ def add_elo(matches, k=ELO_K):
       result["AwayElo"] = pd.Series(away_elo)
       result["EloDiff"] = result["HomeElo"] - result["AwayElo"]
       return result
+
+def current_elo(matches, k=ELO_K):
+        """Each team's rating after its most recent match. Needs the columns from add_elo."""
+        ratings = {}
+        for _, row in matches.sort_values("Date", kind="stable").iterrows():
+              result = {"H": 1, "D": 0.5, "A": 0}[row["FTR"]]
+              change = rating_change(row["HomeElo"], row["AwayElo"], result, k)
+              ratings[row["HomeTeam"]] = row["HomeElo"] + change
+              ratings[row["AwayTeam"]] = row["AwayElo"] - change
+        return ratings
