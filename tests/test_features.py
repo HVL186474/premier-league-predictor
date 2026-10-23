@@ -7,7 +7,7 @@ def test_expected_score():
     assert expected_score(1000, 1000) == 0.5
 
 def test_rating_change():
-    assert rating_change(1000, 1000, 1) == 10
+    assert rating_change(1000, 1000, 1, k = 20) == 10
 
 def test_expected_score_known_value():
     assert expected_score(1700, 1400) == pytest.approx(0.849, abs=0.001)
@@ -16,7 +16,7 @@ def test_expected_scores_of_both_teams_sum_to_one():
     assert expected_score(1700, 1400) + expected_score(1400, 1700) == pytest.approx(1.0)
 
 def test_rating_change_draw_known_value():
-    assert rating_change(1700, 1650, 0.5) == pytest.approx(-1.429, abs=0.001)
+    assert rating_change(1700, 1650, 0.5, k = 20) == pytest.approx(-1.429, abs=0.001)
 
 def test_rating_change_scales_with_k():
     assert rating_change(1600, 1500, 1, k=40) == pytest.approx(2 * rating_change(1600, 1500, 1, k=20))
@@ -75,7 +75,7 @@ def make_elo_matches(second_season_away="E"):
 
 
 def test_elo_known_values():
-      result = add_elo(make_elo_matches())
+      result = add_elo(make_elo_matches(), k = 20)
       # First match: both start at 1500. A wins, so A gains 20 * 0.5 = 10 and B loses 10
       assert result.loc[0, ["HomeElo", "AwayElo"]].tolist() == [1500, 1500]
       assert result.loc[2, ["HomeElo", "AwayElo"]].tolist() == [1510, 1500]
@@ -90,7 +90,7 @@ def test_elo_ratings_sum_is_conserved():
       assert round_two == pytest.approx(4 * 1500)
 
 def test_promoted_team_starts_at_relegated_average():
-      result = add_elo(make_elo_matches())
+      result = add_elo(make_elo_matches(), k = 20)
       # D is the only relegated team, so E starts at D's rating after D's last match (row 3)
       d_before = result.loc[3, "AwayElo"]
       b_before = result.loc[3, "HomeElo"]
@@ -99,7 +99,7 @@ def test_promoted_team_starts_at_relegated_average():
       
       
 def test_elo_season_without_promotion_carries_ratings_over():
-      result = add_elo(make_elo_matches(second_season_away="D"))
+      result = add_elo(make_elo_matches(second_season_away="D"), k = 20)
       # Same four teams in season 2, so D keeps its rating and nothing crashes
       d_before = result.loc[3, "AwayElo"]
       b_before = result.loc[3, "HomeElo"]

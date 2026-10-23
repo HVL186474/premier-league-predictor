@@ -4,6 +4,18 @@ Work items for the [Blueprint](BLUEPRINT.md). Every code change should map to a 
 
 **Deadline**: Friday 30 October 2026 (decision D2). Target dates leave 29–30 October as buffer.
 
+## Run-in schedule (agreed 2026-10-21, synced 2026-10-23)
+
+| Day | Alexander | Andreas |
+|---|---|---|
+| Fri 23 | Commit T3.3 (K = 30) with tests fixed. Start report R1 | T2.7 `score()` to §3 spec, T3.4 gradient boosting. Then together: pick model (D5), run T3.5 once |
+| Sat 24 | T3.6 save model to `models/`, push. Report R2 | Blocked on `models/` until it lands; T2.1, T2.3, T4.2 meanwhile |
+| Sun 25 – Mon 26 | Report | T4.1, T4.3, T4.4 |
+| Tue 27 | Report | T5.1, T5.2 deploy |
+| Wed 28 | QA + code freeze together. Report final draft | Same |
+| Thu 29 | Reports done (individual) | Same |
+| Fri 30 | Submit | Submit |
+
 ## Phase 1: Plan (by Sat 17 Oct)
 
 - [x] **T1.1** Write `docs/BLUEPRINT.md` and `docs/task.md`
@@ -14,16 +26,16 @@ Work items for the [Blueprint](BLUEPRINT.md). Every code change should map to a 
 - [ ] **T2.1** Add `requirements-dev.txt` with pytest and jupyter, and remove jupyter from `requirements.txt`
 - [ ] **T2.2** `data_loader.py`: use paths relative to the project root, and drop the `os.chdir("..")` from the notebook
 - [ ] **T2.3** `preprocessing.py`: parse dates, sort by date, keep only needed columns
-- [ ] **T2.4** `features.py`: form feature, filling missing form with 0.79 (decision D3)
-- [ ] **T2.5** `features.py`: Elo feature
-- [ ] **T2.6** `tests/test_features.py`: no look-ahead (changing a match's result must not change its own features), correct form values on a small hand-made example, Elo ratings sum unchanged after a match
+- [x] **T2.4** `features.py`: form feature, filling missing form with 0.79 (decision D3)
+- [x] **T2.5** `features.py`: Elo feature
+- [x] **T2.6** `tests/test_features.py`: no look-ahead (changing a match's result must not change its own features), correct form values on a small hand-made example, Elo ratings sum unchanged after a match
 - [ ] **T2.7** `evaluation.py`: log loss, accuracy, confusion matrix, and the baseline table from the blueprint
 - [ ] **T2.8** Notebook imports from `src/` instead of defining the logic inline
 
 ## Phase 3: Improve the model (Wed 21 – Sat 24 Oct)
 
-- [ ] **T3.1** Train/validation/test split by season, with 2016/17 as warm-up only (blueprint §3, decision D4)
-- [ ] **T3.2** Logistic regression on Elo + form. Compare against baselines on validation data
+- [x] **T3.1** Train/validation/test split by season, with 2016/17 as warm-up only (blueprint §3, decision D4)
+- [x] **T3.2** Logistic regression on Elo + form. Compare against baselines on validation data
 - [ ] **T3.3** Try the candidate features from blueprint §4. Keep only what lowers validation log loss
 - [ ] **T3.4** Gradient-boosted model for comparison
 - [ ] **T3.5** Final test-set evaluation (run once) plus figures for the report

@@ -3,7 +3,7 @@ import pandas as pd
 FORM_WINDOW = 5
 MISSING_FORM = 0.79
 
-ELO_K = 20
+ELO_K = 30
 ELO_START = 1500
 
 # Definerer ELO hjelpere: 
