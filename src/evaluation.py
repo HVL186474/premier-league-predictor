@@ -1,10 +1,20 @@
 import pandas as pd
+import numpy as np
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
     confusion_matrix,
+    log_loss,
 )
 
+def score(model, X, y):
+      """Score a fitted model on X, y. Every model in the project is compared with this."""
+      probabilities = model.predict_proba(X)
+      predicted = model.classes_[probabilities.argmax(axis=1)]
+      return {
+          "log_loss": log_loss(y, probabilities, labels=model.classes_),
+          "accuracy": accuracy_score(y, predicted),
+      }
 
 def evaluate_model(y_true, predictions):
     accuracy = accuracy_score(y_true, predictions)
