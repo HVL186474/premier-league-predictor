@@ -1,3 +1,4 @@
+
 import pandas as pd
 
 
@@ -15,5 +16,11 @@ def preprocess_matches(matches):
     matches = matches.dropna(
         subset=["Date", "HomeTeam", "AwayTeam", "FTR"]
     )
+
+    # Sort by date using a stable sort and reset the index
+    matches = matches.sort_values(
+        by="Date",
+        kind="stable"
+    ).reset_index(drop=True)
 
     return matches
