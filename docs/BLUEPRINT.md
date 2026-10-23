@@ -105,7 +105,7 @@ The notebook stays for exploration and figures, and imports from `src/` instead 
 ## 7. App
 
 - Home page predictor: pick any two **current-season** teams and see H/D/A probabilities.
-- Team lists come from the data, not hard-coded. App display names map to data names (e.g. `Man City` → "Manchester City").
+- Team lists are kept by hand in `src/teams.py`, and `tests/test_teams.py` checks they match the teams in `models/team_state.csv` (decision D9). App display names map to data names (e.g. `Man City` → "Manchester City").
 - Team pages only for the six featured teams that already have one (decision D8). The other 14 current teams have no page but can be picked in every predictor.
 - Deployed on Streamlit Community Cloud.
 
@@ -147,6 +147,7 @@ The notebook stays for exploration and figures, and imports from `src/` instead 
 | D6 | How to parse the mixed date formats? | **`dayfirst=True, format="mixed"`** in `preprocessing.py`, for every season (2026-10-21) |
 | D7 | What does `models/team_state.csv` hold? | **`Team,Elo` only**. The chosen model uses `EloDiff` alone, so form is not stored (2026-10-23) |
 | D8 | How much frontend do we build? | **Keep the six existing team pages, add no new ones.** All 20 current teams can still be predicted from the home page and team-page dropdowns. The assignment is the ML, so frontend work is kept to the minimum (2026-10-23) |
+| D9 | Build the app's team lists from the data, or keep them by hand? | **By hand in `src/teams.py`**, since each team also needs a display name, nickname and logo. `test_every_app_team_has_a_rating` fails if the list stops matching `models/team_state.csv`, so a retrain for a new season forces an update (2026-10-23) |
 
 ## 11. Out of scope
 

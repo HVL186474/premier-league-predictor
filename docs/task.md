@@ -45,8 +45,8 @@ Work items for the [Blueprint](BLUEPRINT.md). Every code change should map to a 
 
 - [x] **T4.1** `prediction.py`: load the model and current team ratings, return H/D/A probabilities
 - [x] **T4.2** Map team names between the app and the data
-- [x] **T4.3** Home page: build the team list from current-season data and show probabilities
-- [x] **T4.4** The six existing team pages: build the opponent list from the data and show probabilities. No new pages (decision D8)
+- [x] **T4.3** Home page: offer all current-season teams (list in `src/teams.py`, decision D9) and show probabilities
+- [x] **T4.4** The six existing team pages: offer every other current-season team as opponent and show probabilities. No new pages (decision D8)
 
 ## Phase 5: Deploy (Tue 27 Oct)
 
