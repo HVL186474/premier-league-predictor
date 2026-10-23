@@ -39,7 +39,7 @@ Work items for the [Blueprint](BLUEPRINT.md). Every code change should map to a 
 - [x] **T3.3** Try the candidate features from blueprint §4. Keep only what lowers validation log loss
 - [x] **T3.4** Gradient-boosted model for comparison
 - [x] **T3.5** Final test-set evaluation (run once) plus figures for the report
-- [ ] **T3.6** `train.py`: retrain the chosen model on all completed seasons and save it to `models/`
+- [x] **T3.6** `train.py`: retrain the chosen model on all completed seasons and save it to `models/`
 
 ## Phase 4: Connect the app (Sun 25 – Mon 26 Oct)
 
