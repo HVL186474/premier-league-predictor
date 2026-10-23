@@ -119,7 +119,7 @@ Every model trained on train + validation (2017/18 to 2024/25), the seasons play
 - Closes 70% of the gap from knowing nothing to the bookmaker on test (94% on validation). Gap to Bet365: 0.020 on test vs 0.007 on validation.
 - Draws were 27.4% of test matches (104 of 380). Neither the model nor Bet365 predicts a single draw.
 - Figures: `figures/confusion_matrix.png`, `figures/calibration.png`.
-  - Calibration: home and away follow the diagonal well up to about 50%. At the top the model is a bit overconfident (says 73% home win, happened 62%).
+  - Calibration: home and away follow the diagonal well up to about 50%. At the top the model is a bit overconfident (says 73% home win, happened 62%; says 63% away win, happened 50%). Each point is one of 8 equal-size bins, so about 47 matches, which means roughly ±7 percentage points of noise. A hint, not proof.
   - Draw probabilities stay between 17% and 26%, and within that band they are roughly right.
 - Process: the script was not committed before running. It ran twice: the first run crashed on a missing import after printing the table; the model is deterministic, so the numbers were the same.
 
@@ -131,6 +131,19 @@ Every model trained on train + validation (2017/18 to 2024/25), the seasons play
 - **The remaining gap to the bookmaker** (0.006 at K = 30) is mostly information we don't use and is out of scope: injuries, line-ups, transfers.
 - **No model ever predicts a draw, not even the bookmaker.** Draws were 24.5% of matches. The model gives draws 22% on average (Bet365: 23%), so its draw probabilities are realistic. But its highest draw probability for any single match is 25% (Bet365: 31%), so a home or away win is always more likely. This is how football works, not a bug, and it's a reason to score probabilities with log loss and not picks with accuracy.
 - **2024/25 was an unusually predictable season:** all three promoted teams (Ipswich, Leicester, Southampton) went straight back down. Validation scores (about 0.98) are much better than the Elo baseline on the 2025/26 test season (1.042). Only compare models on the same season, never validation numbers with test numbers.
+
+### Is the model accurate? (review of the test results, 2026-10-23)
+
+- **Close to the bookmaker with one feature.** On test it closes 70% of the gap from knowing nothing to Bet365, and its accuracy (48.7%) is level with Bet365 (49.0%). Bet365 also has team news, injuries and market money. Around 50% accuracy is near the practical ceiling for football results, because about a quarter of matches are draws and luck matters a lot.
+- **The drop from validation to test is mostly the season.** Bet365 got worse too (0.971 → 1.019), so 2025/26 was simply harder to predict. The part that is ours: the gap to Bet365 widened from 0.007 to 0.020. Two reasons: K was chosen after looking at validation 15+ times, and Elo cannot react to changes such as a new manager or transfers.
+- **The model under-predicts draws on test, and it can't know better.** Its average draw probability on 2025/26 is 23.1%, almost exactly the 22.9% draw rate of the seasons it was trained on. But 2025/26 had 27.4% draws (Bet365 averaged 24.4%). Its highest draw probability for any test match is 25.6%, so it never names a draw.
+- **Slightly overconfident on big favourites** (see the calibration bullet in §5). Worth one sentence, with the bin-size caveat.
+- **The ratings the app uses match the real table.** Checked against league tables built from the data:
+  - 2025/26 top three were Arsenal 85 pts, Man City 78, Man United 71. The top three Elo ratings are Man City 1711, Arsenal 1708, Man United 1573.
+  - Tottenham finished 17th (41 pts) in 2025/26 and are 19th after 50 matches of 2026/27, so their low rating (1388, 4th lowest) is right, not a bug. That's why the app gives them 6–12% against Arsenal.
+  - The promoted teams Coventry (1349), Ipswich (1369) and Hull (1393) are at the bottom, as expected (they start on the relegated teams' average).
+- **Elo is slow after surprises.** Sunderland were promoted, finished 7th with 54 pts, and are still rated below average (1451). They started from the relegated teams' average, and one season at K = 30 doesn't fully catch up. A known limitation of plain Elo.
+- **We did not change the model after the test run.** The test season has been used once. Any tuning after that would make the 1.0385 figure unreliable, so these findings are reported as limitations, not fixed.
 
 ## 7. Process
 
