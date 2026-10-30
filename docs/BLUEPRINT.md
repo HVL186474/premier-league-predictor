@@ -1,6 +1,6 @@
 # Blueprint: Premier League Predictor
 
-DAT158 ML assignment 2. This document is the agreed spec. Code changes should trace back to it and to a task in [task.md](task.md). If something here needs to change, change it here first.
+DAT158 ML assignment 2. This is the spec we agreed on before writing the code, updated to match the finished project. The results are in the [report](DAT158-rapport.pdf).
 
 ## 1. Goal
 
@@ -40,7 +40,7 @@ Every rolling or rating feature must use `shift(1)`, or be computed from the sta
 | Warm-up season | 2016/17 is used to build up Elo ratings and form, but **not for training**, because every team starts at 1500 with no history (decision D4) |
 | Training data | Seasons 2017/18 to 2023/24 |
 | Validation data | 2024/25, used for choosing features and tuning |
-| Test data | 2025/26 (380 matches), used **once** for the final numbers in the report |
+| Test data | 2025/26 (380 matches), used for the final numbers in the report, never for a decision |
 | Final model | Retrained on 2017/18 to 2025/26 before going into the app |
 | Primary metric | **Log loss**. We output probabilities, so we score probabilities |
 | Secondary metrics | Accuracy, confusion matrix, share of draws predicted |
@@ -54,7 +54,7 @@ Every model is scored with the same function, `score(model, X, y)` in `src/evalu
 - It takes a fitted sklearn model, the feature columns `X` and the true results `y` (`FTR`).
 - It returns a dict: `{"log_loss": ..., "accuracy": ...}`.
 - Log loss uses `model.predict_proba(X)` with `labels=model.classes_`, so the class order is always right.
-- **Check**: logistic regression on `EloDiff` only, trained on the training seasons and scored on 2025/26, must give **1.042** (re-measured 2026-10-21 with `src/split.py`; the 1.043 in the table below came from the notebook). If it doesn't, the function is wrong.
+- **Check**: logistic regression on `EloDiff` only, trained on the training seasons and scored on 2025/26, must give **1.042** (the 1.043 in the table below came from the notebook). If it doesn't, the function is wrong.
 
 ### Baselines to beat (2025/26, measured 2026-10-16)
 
@@ -67,15 +67,15 @@ Every model is scored with the same function, `score(model, X, y)` in `src/evalu
 
 **Success criterion**: beat the Elo-only model on log loss in validation and test, and report how close we get to the bookmaker.
 
-## 4. Features (initial set)
+## 4. Features
 
 | Feature | Definition |
 |---|---|
-| `HomeElo`, `AwayElo`, `EloDiff` | Elo ratings before the match. Start at 1500, K = 20. Promoted teams start at the average of the relegated teams |
+| `HomeElo`, `AwayElo`, `EloDiff` | Elo ratings before the match. Start at 1500, K = 30 in the final model (20 before tuning). Promoted teams start at the average of the relegated teams |
 | `HomeForm`, `AwayForm` | Average points from the team's previous 5 league matches |
 | Candidates to test | Separate home/away form, goal-difference form, Elo home advantage, pulling ratings toward average between seasons |
 
-Missing form (a team's first match in the data) is filled with **0.79** (decision D3). The report should say where this number comes from.
+Missing form (a team's first match in the data) is filled with **0.79** (decision D3), about the points per match of a typical relegated team (~30 points / 38 matches).
 
 ## 5. Models
 
@@ -83,24 +83,24 @@ Missing form (a team's first match in the data) is filled with **0.79** (decisio
 2. A gradient-boosted tree model (e.g. `HistGradientBoostingClassifier`) for comparison.
 3. Pick the one with the lower validation log loss. If the gap is under **0.005**, it counts as a tie and logistic regression wins (decision D5).
 
-Draws are hard to predict, and no model is expected to *pick* draws often. The report should discuss this.
+Draws are hard to predict, and no model is expected to *pick* draws often.
 
 ## 6. Code structure
 
 | Module | Responsibility |
 |---|---|
 | `src/data_loader.py` | Download and load raw seasons (paths relative to the project root) |
-| `src/preprocessing.py` | Parse dates, sort, keep needed columns, normalise team names |
+| `src/preprocessing.py` | Parse dates, drop rows without a result, sort by date |
 | `src/features.py` | Form and Elo features, without look-ahead |
 | `src/split.py` | Train/validation/test split by season (§3), run after the features are computed |
 | `src/compare_models.py` | Scores the baselines and candidate models on the validation season. Run with `python -m src.compare_models` |
-| `src/model.py` | Model definitions |
-| `src/train.py` | Train on a split and save the model to `models/` |
+| `src/final_evaluation.py` | Scores the chosen model on the test season and writes `figures/`. Run with `python -m src.final_evaluation` |
+| `src/train.py` | Train the chosen model on all completed seasons and save it to `models/` |
 | `src/evaluation.py` | Metrics, baselines and the comparison table |
 | `src/prediction.py` | Load the saved model and return H/D/A probabilities for a fixture |
 | `tests/` | pytest tests, especially no leakage in `features.py` |
 
-The notebook stays for exploration and figures, and imports from `src/` instead of duplicating logic.
+The notebook holds the first exploration. The final logic lives in `src/`.
 
 ## 7. App
 
@@ -111,22 +111,22 @@ The notebook stays for exploration and figures, and imports from `src/` instead 
 
 ## 8. Deployment
 
-`data/raw/` is gitignored, so the hosted app has no CSVs. **Decision**: commit the trained model, plus the small table of current ratings and form the app needs, to `models/`. The app then never downloads or trains at startup.
+`data/raw/` is gitignored, so the hosted app has no CSVs. **Decision**: commit the trained model, plus the small table of current ratings the app needs, to `models/`. The app then never downloads or trains at startup.
 
 - Split requirements: `requirements.txt` (app only) and `requirements-dev.txt` (jupyter, pytest).
 
 ### Model handoff (`models/`)
 
-`train.py` writes these files and `prediction.py` reads them. Agreed on 2026-10-21, so the app can be built before the final model exists.
+`train.py` writes these files and `prediction.py` reads them.
 
 | File | Written by | Holds |
 |---|---|---|
-| `models/model.joblib` | `train.py` (T3.6) | The fitted sklearn model, with `predict_proba` |
-| `models/team_state.csv` | `train.py` (T3.6) | One row per current-season team, columns `Team,Elo` (decision D7). `Team` uses the **data** names (e.g. `Man City`) |
-| `models/features.json` | `train.py` (T3.6) | The list of feature columns, in the order the model expects |
+| `models/model.joblib` | `train.py` | The fitted sklearn model, with `predict_proba` |
+| `models/team_state.csv` | `train.py` | One row per current-season team, columns `Team,Elo` (decision D7). `Team` uses the **data** names (e.g. `Man City`) |
+| `models/features.json` | `train.py` | The list of feature columns, in the order the model expects |
 
-- `prediction.py` builds one row with the columns from `features.json` (e.g. `HomeElo` from the home team's `Elo`) and returns the probabilities as `{"H": ..., "D": ..., "A": ...}`, using `model.classes_` for the order.
-- The app maps its display names to data names (T4.2) before looking up `team_state.csv`.
+- `prediction.py` computes `EloDiff` from the two teams' ratings and returns the probabilities as `{"H": ..., "D": ..., "A": ...}`, using `model.classes_` for the order.
+- The app maps its display names to data names before looking up `team_state.csv`.
 
 ## 9. Security and data
 

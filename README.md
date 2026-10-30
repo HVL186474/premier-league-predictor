@@ -34,5 +34,3 @@ The downloaded file for the current season grows as matches are played. The vali
 ## Project documents
 
 - [Blueprint](docs/BLUEPRINT.md): the agreed spec (data, features, evaluation, app, deployment).
-- [Tasks](docs/task.md): the work breakdown. Every code change maps to a task here.
-- [Report notes](docs/report-notes.md): the measured numbers and findings behind the report.

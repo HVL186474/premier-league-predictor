@@ -1,4 +1,3 @@
-#Klasse
 import pandas as pd
 
 def preprocess_matches(matches):
