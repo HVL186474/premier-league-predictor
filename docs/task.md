@@ -13,7 +13,7 @@ Work items for the [Blueprint](BLUEPRINT.md). Every code change should map to a 
 | Sun 25 – Mon 26 | Report | T4.1, T4.3, T4.4 |
 | Tue 27 | Report | T5.1, T5.2 deploy |
 | Wed 28 | QA + code freeze together. Report final draft | Same |
-| Thu 29 | Reports done (individual) | Same |
+| Thu 29 | Report done (one group report) | Same |
 | Fri 30 | Submit | Submit |
 
 ## Phase 1: Plan (by Sat 17 Oct)
@@ -51,7 +51,7 @@ Work items for the [Blueprint](BLUEPRINT.md). Every code change should map to a 
 ## Phase 5: Deploy (Tue 27 Oct)
 
 - [x] **T5.1** Commit the model files and make sure the app runs with an empty `data/raw/`
-- [ ] **T5.2** Deploy to Streamlit Community Cloud and smoke-test it
+- [x] **T5.2** Deploy to Streamlit Community Cloud and smoke-test it
 
 ## Phase 6: Clean up (optional, only if time allows)
 
@@ -61,6 +61,6 @@ Work items for the [Blueprint](BLUEPRINT.md). Every code change should map to a 
 
 ## Report (write alongside phases 3–5, final draft by Wed 28 Oct)
 
-- [ ] **R1** Data and features section (include the leakage rules)
-- [ ] **R2** Results table against the baselines, and a discussion of draws
-- [ ] **R3** App description with screenshots
+- [x] **R1** Data and features section (include the leakage rules)
+- [x] **R2** Results table against the baselines, and a discussion of draws
+- [x] **R3** App description with screenshots

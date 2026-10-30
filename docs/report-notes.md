@@ -1,6 +1,6 @@
 # Report notes
 
-Facts, numbers and findings to use in the individual reports. These are notes, not report text: each of us writes our own report in our own words. Add to this file whenever something is decided or measured, with the date.
+Facts, numbers and findings to use in the group report (one report for both of us, per the Canvas assignment). These are notes, not report text. Add to this file whenever something is decided or measured, with the date.
 
 All log loss numbers are on the **2024/25 validation season** unless they say otherwise. Lower is better.
 
